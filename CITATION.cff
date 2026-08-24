@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, machine learning framework, or datasets, please cite it as below."
+title: "Machine Learning Framework for Ball Milling Optimization of gamma-TiAl Alloy Powder"
+abstract: "A data-driven framework for predicting and optimizing the sphericity of gamma-TiAl alloy powders as a function of ball-milling process parameters for additive manufacturing applications."
+version: 1.0.0
+date-released: 2026-08-23
+license: MIT
+url: "https://github.com/Manohar-krishna/Ball-milling-Optimization-of-gamma-TiAl-alloy-powder.git"
+authors:
+  - family-names: "[Gumma]"
+    given-names: "[Manohar Krishna]"
+    affiliation: "[Metallurgical & Materials / NIT Raipur]"
+    # Role: Major Contributor / Lead Researcher
+  - family-names: "[Neelam]"
+    given-names: "[Naga Sruthi]"
+    affiliation: "[Metallurgical & Materials / NIT Raipur]"
+    # Role: Research Supervisor / Principal Investigator
+preferred-citation:
+  type: generic
+  authors:
+    - family-names: "[Gumma]"
+      given-names: "[Manohar Krishna]"
+    - family-names: "[Batchmate Last Name]"
+      given-names: "[Naga Sruthi]"
+  title: "Machine Learning Framework for Ball Milling Optimization of gamma-TiAl Alloy Powder"
+  year: 2026
+  url: "https://github.com/[Organization-or-Username]/[Repo-Name]"
