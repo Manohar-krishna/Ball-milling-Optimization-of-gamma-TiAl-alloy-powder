@@ -1,0 +1,21 @@
+sample_id,sample_name,mill_type,rpm,Time,bpr_reported,hardness_hv,strength_hv
+U01,TiAl-25-75,Planetary,NA,NA,10:1,NA,NA
+U02,TiAl-48,Multiple,NA,NA,2.5:1 - 16:1,NA,NA
+U03,TiAl-48,Attritor,400,60,20:1,450.0,1530.0
+U04,TiAl-48,Planetary,NA,NA,NA,NA,NA
+U05,TiAl-50,Attritor,600,300,10:1,NA,NA
+U06,TiAl-48,Attritor,600,480,10:1,NA,NA
+U07,TiAl-45,High-Energy,550,2400,10:1,NA,NA
+U08,TiAl-46,Planetary,300,240,5:1,NA,NA
+U09,TiAl-48,Planetary,250,720,5:1,NA,NA
+U10,TiAl-50,Planetary,NA,120,NA,NA,NA
+U11,TiAl-20,High-Energy,500,NA,10:1,NA,NA
+U12,TiAl-48,Attritor,270,720,20:1,NA,NA
+U13a,TiAl-44,Planetary,160,120,10:1,527.14,1792.28
+U13b,TiAl-44,Planetary,300,120,10:1,527.14,1792.28
+U13c,TiAl-44,Planetary,400,120,10:1,527.14,1792.28
+U14,TiAl-48,NA,200,900,15:1,NA,NA
+U15,TiAl-48,NA,300,1500,15:1,NA,NA
+U16,TiAl-48,Planetary,300,30,10:1,NA,NA
+U17,TiAl-48,High-Energy,NA,NA,NA,1224.49,4163.27
+U18,TiAl-48,High-Energy,250,180,8:1,340.0,1156.0
