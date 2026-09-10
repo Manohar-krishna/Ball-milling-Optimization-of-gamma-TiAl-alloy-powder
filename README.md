@@ -1,17 +1,17 @@
-# Ball Milling Optimization of γ-TiAl Alloy Powder using Machine Learning
+# Ball Milling Morphology Analysis of γ-TiAl Alloy Powder
 
-> A data-driven framework for predicting and optimizing the sphericity of γ-TiAl alloy powders as a function of ball-milling parameters for additive manufacturing applications.
+> An SEM-image-based workflow for measuring γ-TiAl powder morphology and establishing reliable experimental labels for future process–property optimization.
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Introduction](#Introduction)
+- [Research Decision](#research-decision)
 - [Aim & Objectives](#aim--objectives)
-- [Methodology](#methodology)
-- [Results](#results)
-- [Conclusion](#conclusion)
+- [Data Assets](#data-assets)
+- [Image-Based Methodology](#image-based-methodology)
+- [Findings & Conclusions](#findings--conclusions)
 - [Future Scope](#future-scope)
 - [Citation](#citation)
 - [License](#license)
@@ -20,82 +20,101 @@
 
 ## Overview
 
-This project presents an experimental and machine-learning framework that investigates the relationship between ball-milling process parameters and the resulting morphology of γ-TiAl (gamma Titanium Aluminide) alloy powders. The framework predicts particle sphericity and identifies optimal milling conditions suitable for powder bed fusion and other additive manufacturing (AM) processes.
+This project investigates how ball milling changes the morphology of γ-TiAl alloy powder for additive-manufacturing applications. The current approach prioritizes **SEM-image-based morphology quantification** over direct regression from a small, heterogeneous literature dataset.
 
----
+Rather than claiming a process-parameter model can already identify optimal milling conditions, the project uses SEM images to measure morphology directly: projected circularity, particle size, aspect ratio, solidity, agglomeration, and the fraction of particles meeting a declared near-spherical criterion. These image-derived measurements provide traceable labels for later process–property modeling.
 
-## Introduction
+## Research Decision
 
-Materials science research is inherently expensive and labour-intensive. Industries invest millions annually to identify suitable materials for specific applications through trial-and-error experimentation. This project aims to reduce that cost by shifting from purely observation-oriented research to **data-driven prediction**, leveraging machine learning to extract generalizable insights from small experimental datasets.
+The literature dataset is retained as contextual evidence, but it is not used as the primary source for Ridge, Support Vector Regression (SVR), or Gaussian Process Regression (GPR) process models.
 
-> **Key Research Question:** Can machine-learning models accurately predict and optimize the sphericity of γ-TiAl powders as a function of ball-milling parameters for additive manufacturing applications?
+The dataset contains only 20 heterogeneous records. Several records summarize a range of milling conditions rather than a single experiment; alloy compositions, mill types, and post-processing states differ; and the reported outcomes do not provide a consistent sphericity target. Important milling descriptors—including jar geometry, ball size and material, powder loading, process-control agent, atmosphere, and milling medium—are incomplete or absent.
 
----
+Under these conditions, weak generalization from Ridge, SVR, and GPR is expected:
+
+- **Ridge regression** assumes one approximately linear relationship across studies with incompatible experimental configurations.
+- **SVR** is sensitive to feature scaling, kernel choice, and hyperparameters when there are few independent observations.
+- **GPR** requires enough comparable observations to estimate a smooth process–property relationship and its uncertainty; with sparse, heterogeneous data, kernel and noise estimates are unstable.
+
+This is a limitation of the available evidence, not a claim that these methods are unsuitable for well-designed experimental datasets. The repository therefore avoids reporting unsupported R², RMSE, or optimal-condition claims.
 
 ## Aim & Objectives
 
-**Aim:** To develop and validate a machine-learning-based framework for understanding, predicting, and optimizing the effect of ball-milling parameters on the sphericity of γ-TiAl alloy powders for additive manufacturing applications.
+**Aim:** To build a reproducible SEM-image-analysis workflow that quantifies γ-TiAl powder morphology after ball milling and produces experimentally grounded morphology labels.
 
 **Objectives:**
 
-1. Conduct controlled ball-milling experiments across a range of process parameters (e.g., milling speed, time, ball-to-powder ratio).
-2. Characterize the resulting powder morphology with quantitative sphericity measurements.
-3. Build and evaluate machine learning models to predict particle sphericity from process parameters.
-4. Apply model-based optimization to identify milling conditions that maximize sphericity.
-5. Assess model reliability and uncertainty, particularly given the constraints of a small experimental dataset (N < 30).
+1. Catalogue SEM images with batch, processing-condition, and calibration metadata.
+2. Identify image fields suitable for individual-particle morphology analysis.
+3. Segment particles and measure projected circularity, equivalent diameter, aspect ratio, solidity, and related shape descriptors.
+4. Aggregate particle-level measurements by image and then by independently prepared milling condition.
+5. Compare experimental image groups with the atomised-powder baseline, subject to confirmation of comparable composition and acquisition conditions.
+6. Use the resulting condition-level morphology data to design future controlled ball-milling experiments.
 
----
+## Data Assets
 
-## Methodology
+| Asset | Contents | Intended use |
+|---|---:|---|
+| `Data/Literature Data/TiAl_Ball_Milling_raw_dataset.csv` | 20 literature records | Context, provenance review, and experimental-design guidance; not a standalone sphericity-training dataset. |
+| `Data/Experiment Data/` | 39 SEM TIFF images in 24 h, 48 h, and 72 h-labelled groups | Experimental morphology quantification. Group labels must be verified against lab records. |
+| `Data/Ti Atomised/` | 12 SEM TIFF images | Atomised-powder morphology baseline. Composition must be confirmed before treating it as a γ-TiAl control. |
+| `Data/Processed/` | Processed tabular datasets | Intermediate, traceable data-processing outputs. |
 
-### Experimental Design
+The image files are technical fields of view and magnifications, not automatically independent experiments. Multiple images from the same batch or condition must remain grouped during analysis and validation.
 
-- Ball-milling experiments conducted across a systematic design-of-experiments (DoE) parameter space.
-- Powder morphology characterized using scanning electron microscopy (SEM) and image analysis.
-- Sphericity computed as the primary response variable.
+## Image-Based Methodology
 
-### Machine Learning Framework
+### 1. Build an image manifest
 
-- **Dataset size:** 20 experimental observations.
-- **Cross-validation strategy:** Leave-One-Out Cross-Validation (LOOCV) — recommended for datasets with N < 30 to minimize bias in performance estimation.
-- **Models evaluated:** _e.g., Gaussian Process Regression, Random Forest, Support Vector Regression_
-- **Metrics:** R², RMSE, prediction uncertainty bounds.
-- **Overfitting mitigation:** Regularization, cross-validation, and uncertainty quantification were employed throughout.
+Create one manifest row per TIFF image containing `image_id`, file path, batch or condition ID, composition, milling time, RPM, BPR, mill type, medium, pixel size, magnification, image type, and usability status. Do not infer missing processing information from filenames alone.
 
-> **Note on dataset size:** With only 20 observations, models can indicate whether a meaningful relationship exists between parameters and sphericity, but confidence in the generalized learned function is inherently limited. All conclusions are reported with appropriate uncertainty.
+### 2. Select and calibrate images
 
----
+Classify images as isolated powder, touching powder, agglomerated powder, compacted/surface morphology, or unsuitable. Use the embedded SEM calibration and verify it against the scale bar. Crop or mask the instrument footer, scale bar, and logo before analysis without modifying the raw TIFF files.
 
-## Results
+### 3. Segment individual particles
 
-| Model | Cross-Validation R² | RMSE | Notes |
-|-------|:-------------------:|:----:|-------|
-| _Model 1_ | _—_ | _—_ | _Update with actual results_ |
-| _Model 2_ | _—_ | _—_ | _Update with actual results_ |
+Use a documented segmentation workflow, such as background correction, conservative thresholding, distance transform, and watershed separation for touching particles. Review particle-mask overlays against each original SEM image. Manually assess a representative subset to quantify missed, merged, or falsely split particles.
 
-- The best-performing model achieved a cross-validation R² of **[X]** and an RMSE of **[Y]**.
-- Optimal milling conditions identified: **[parameters]** → predicted sphericity of **[value]**.
-- Feature importance analysis highlighted **[key parameters]** as the most influential on sphericity.
+### 4. Calculate morphology features
 
----
+For each accepted particle, calculate:
 
-## Conclusion
+- projected circularity: \(4πA / P^2\);
+- equivalent circular diameter;
+- aspect ratio and Feret diameter;
+- solidity and convexity;
+- exclusion flags for border-touching, unresolved, or artefactual objects.
 
-This study demonstrates that machine learning models can serve as effective surrogate tools for predicting γ-TiAl powder sphericity from ball-milling process parameters, even under the constraint of a small experimental dataset. The framework successfully:
+The resulting measurement is **2D projected circularity**, not 3D sphericity. A near-spherical threshold must be chosen before group comparisons and reported with the results.
 
-- Identified statistically meaningful relationships between milling parameters and powder morphology.
-- Provided model-based recommendations for milling conditions that promote near-spherical particles suitable for additive manufacturing.
-- Highlighted the importance of rigorous cross-validation and uncertainty reporting when working with limited experimental data.
+### 5. Aggregate and compare
 
----
+Summarize particle measurements first by SEM field and then by independent milling condition. Use robust summaries such as median, interquartile range, D10/D50/D90, and fraction above the circularity threshold. Do not treat particles or images from one condition as independent process experiments.
+
+### 6. Validate responsibly
+
+Validate segmentation against manual checks and retain image, batch, and condition identifiers throughout. Any future predictive model must use grouped validation that holds out whole batches or conditions; it must not split particles from a single image across training and test sets.
+
+## Findings & Conclusions
+
+The current evidence supports the following conclusions:
+
+1. The literature dataset is too small, heterogeneous, and incompletely described for reliable process-parameter optimization with Ridge, SVR, or GPR.
+2. Its records do not supply a consistent, condition-level sphericity target, so model metrics or proposed optimal milling conditions would not be scientifically supported.
+3. SEM images contain direct evidence of the morphology relevant to powder processing and additive manufacturing.
+4. Image analysis can create traceable, condition-level morphology labels from real powder particles.
+5. Image fields and particles are technical replicates; they improve morphological measurement precision but do not increase the number of independent milling experiments.
+6. A valid future process–property model requires additional controlled milling batches with complete processing metadata and image-derived morphology labels.
 
 ## Future Scope
 
-- **Expand the dataset** through additional experiments or high-throughput synthesis to improve model confidence.
-- **Incorporate additional response variables**, such as particle size distribution, flowability, and packing density.
-- **Extend to other alloy systems** (e.g., Ti-6Al-4V, Inconel) using transfer learning approaches.
-- **Couple with process simulation** (e.g., DEM modelling of ball milling) to generate synthetic training data.
-- **Deploy as an interactive tool** for materials engineers to query optimal milling parameters on demand.
+- Complete the image manifest by linking every SEM image to verified laboratory conditions.
+- Establish and validate an annotated particle-segmentation workflow.
+- Compare atomised and milled powder only after chemistry and sampling comparability are confirmed.
+- Expand the number of independently prepared milling conditions across a planned design of experiments.
+- Use image-derived circularity and size-distribution summaries as model targets once sufficient independent conditions are available.
+- Evaluate process–property models with study-, batch-, or condition-grouped validation and report uncertainty on held-out real experiments.
 
 ---
 
@@ -104,25 +123,25 @@ This study demonstrates that machine learning models can serve as effective surr
 If you use this framework, code, or dataset in your research, please cite:
 
 ```bibtex
-@misc{YourLastName2026ballmilling,
+@misc{Gumma2026ballmilling,
   author       = {[Gumma Manohar Krishna] and [Naga Sruthi Neelam]},
   title        = {Machine Learning Framework for Ball Milling Optimization of gamma-TiAl Alloy Powder},
   year         = {2026},
-  howpublished = {\url{https://github.com/Manohar-krishna/Ball-milling-Optimization-of-gamma-TiAl-alloy-powder.git]}},
+  howpublished = {\url{https://github.com/Manohar-krishna/Ball-milling-Optimization-of-gamma-TiAl-alloy-powder.git}},
   note         = {Research project under the guidance of [Naga Sruthi Neelam], [NIT Raipur]}
 }
 ```
 
-A [`CITATION.cff`](file:///Users/manohar/Documents/Ball%20milling%20Optimization%20of%20gamma%20TiAl%20alloy%20powder/CITATION.cff) file is also provided for automated citation integration with GitHub's **"Cite this repository"** feature.
+A [CITATION.cff](CITATION.cff) file is also provided for GitHub's **"Cite this repository"** feature.
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License** — see the [LICENSE](file:///Users/manohar/Documents/Ball%20milling%20Optimization%20of%20gamma%20TiAl%20alloy%20powder/LICENSE) file for details.
+This project is licensed under the **MIT License** — see [License](License) for details.
 
 ---
 
 <p align="center">
-  <em>Developed as part of a materials science research initiative aimed at accelerating alloy powder development through machine learning.</em>
+  <em>Developed as part of a materials-science research initiative to establish reliable powder-morphology evidence for future data-driven optimization.</em>
 </p>
